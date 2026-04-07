@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  python-ai:
+    build: ./backend-python
+    ports:
+      - "8000:8000"
+
+  node-app:
+    build: ./backend-node
+    ports:
+      - "3000:3000"
+    depends_on:
+      - python-ai
+    environment:
+      - PYTHON_URL=http://python-ai:8000

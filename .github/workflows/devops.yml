@@ -22,11 +22,11 @@ jobs:
       # 2. Image Build & Push (Node.js)
       - name: Build and Push Node.js Image
         run: |
-          docker build -t muzahidswe/sales-node:latest ./node-service
+          docker build -t muzahidswe/sales-node:latest ./backend-node
           docker push muzahidswe/sales-node:latest
 
       # 3. Image Build & Push (Python/ML)
       - name: Build and Push Python Image
         run: |
-          docker build -t muzahidswe/sales-python:latest ./python-service
+          docker build -t muzahidswe/sales-python:latest ./backend-python
           docker push muzahidswe/sales-python:latest

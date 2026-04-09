@@ -1,4 +1,4 @@
-name: Sales Prediction CI/CD
+name: AI Powered Sales Prediction CI/CD
 
 on:
   push:

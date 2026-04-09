@@ -2,7 +2,7 @@ name: Sales Prediction CI/CD
 
 on:
   push:
-    branches: [ "main" ] # when push to main branch it will run
+    branches: [ "master" ] # when push to main branch it will run
 
 jobs:
   build-and-push:

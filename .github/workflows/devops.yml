@@ -1,48 +1,8 @@
-# For Docker Hub
-
-# name: AI Powered Sales Prediction CI/CD
-
-# on:
-#   push:
-#     branches: [ "master" ] # when push to master branch it will run
-
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest
-    
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v3
-
-#       # 1. Login to Docker Hub. 
-#       - name: Login to Docker Hub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKERHUB_USERNAME }}
-#           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-#       # 2. Image Build & Push (Node.js)
-#       - name: Build and Push Node.js Image
-#         run: |
-#           docker build -t muzahidswe/sales-node:latest ./backend-node
-#           docker push muzahidswe/sales-node:latest
-
-#       # 3. Image Build & Push (Python/ML)
-#       - name: Build and Push Python Image
-#         run: |
-#           docker build -t muzahidswe/sales-python:latest ./backend-python
-#           docker push muzahidswe/sales-python:latest
-
-
-
-
-# For AWS Lambda
-
 name: AI Powered Sales Prediction CD to AWS Lambda
 
 on:
   push:
-    branches: [ "master" ] # when push to master branch it will run
+    branches: [ "master" ]
 
 jobs:
   deploy:
@@ -50,39 +10,39 @@ jobs:
     
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 
 
-      # 1. Connectio with AWS (Get from GitHub Secrets )
+      
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4 
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
-      # 2. Login to Amazon ECR
+      
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2 
 
-      # 3. Node.js Service Build & Push
-      - name: Build, Tag, and Push Node.js Image to ECR
+      
+      - name: Build and Push Node.js Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: sales-node-app # AWS ECR Name for Node App
+          ECR_REPOSITORY: sales-node-app
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./backend-node
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          # Update Lambda Function (If made before)
-          aws lambda update-function-code --function-name NodeSalesFunction --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest || echo "Lambda function NodeSalesFunction not found. Skipping update."
+          # ল্যাম্বডা আপডেট (যদি ফাংশন তৈরি করা থাকে)
+          aws lambda update-function-code --function-name NodeSalesFunction --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest || echo "Lambda function not found"
 
-      # 4. Python/ML Service Build & Push
-      - name: Build, Tag, and Push Python Image to ECR
+      
+      - name: Build and Push Python Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: sales-python-ml # AWS ECR Name for Python App
+          ECR_REPOSITORY: sales-python-ml
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./backend-python
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          # Update Lambda Function
-          aws lambda update-function-code --function-name PythonMLFunction --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest || echo "Lambda function PythonMLFunction not found. Skipping update."
+          # ল্যাম্বডা আপডেট
+          aws lambda update-function-code --function-name PythonMLFunction --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest || echo "Lambda function not found"
